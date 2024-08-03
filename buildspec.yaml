@@ -1,0 +1,17 @@
+version: 0.2
+
+phases:
+  pre_build:
+    commands:
+      - aws ecr get-login-password --region ap-south-1 | docker login --username AWS --password-stdin 339712780993.dkr.ecr.ap-south-1.amazonaws.com
+  build:
+    commands:
+      - docker build -t ijse-ml .
+      - docker tag ijse-ml:latest 339712780993.dkr.ecr.ap-south-1.amazonaws.com/ijse-ml:latest
+  post_build:
+    commands:
+      - docker push 339712780993.dkr.ecr.ap-south-1.amazonaws.com/ijse-ml:latest
+      - echo Writing image definitions file...
+      - printf '[{"name":"mywebsite","imageUri":"%s"}]' $REPOSITORY_URI:latest > imagedefinitions.json   
+artifacts:
+  files: imagedefinitions.json
